@@ -1,0 +1,2 @@
+# WebGLDetector.js
+Detect WebGL
