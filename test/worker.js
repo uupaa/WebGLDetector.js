@@ -18,10 +18,10 @@ onmessage = function(event) {
     WebModule.publish = true;
 
     
-    
-    
-    
-    
+    importScripts("wmtools.js");
+    importScripts("../lib/WebGLDetector.js");
+    importScripts("../release/WebGLDetector.w.min.js");
+    importScripts("testcase.js");
 
     self.postMessage(self.unitTest);
 };

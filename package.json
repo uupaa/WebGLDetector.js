@@ -1,6 +1,6 @@
 {
   "name": "uupaa.webgldetector.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Detect WebGL",
   "url": "https://github.com/uupaa/WebGLDetector.js",
   "keywords": ["WebGL", "uupaa", "WebModule"],
@@ -35,6 +35,14 @@
     "browser": {
       "source": ["lib/WebGLDetector.js"],
       "output": "release/WebGLDetector.b.min.js"
+    },
+    "worker": {
+      "source": ["lib/WebGLDetector.js"],
+      "output": "release/WebGLDetector.w.min.js"
+    },
+    "node": {
+      "source": ["lib/WebGLDetector.js"],
+      "output": "release/WebGLDetector.n.min.js"
     },
     "nw": {
       "source": ["lib/WebGLDetector.js"],
