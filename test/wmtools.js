@@ -50,8 +50,6 @@ var ES6_IDENTIFY_KEYWORD =
         "enum|class|super|extends|implements|interface|private|protected|package|" +
         "static|public|export|import|yield|let|const|with";
 
-var functionCache = global["WeakMap"] ? new global["WeakMap"]() : null;
-
 // --- class / interfaces ----------------------------------
 function Reflection() {
 }
@@ -68,8 +66,7 @@ Reflection["getModuleRepository"]   = Reflection_getModuleRepository;   // Refle
 Reflection["getBaseClassName"]      = Reflection_getBaseClassName;      // Reflection.getBaseClassName(value):String
 Reflection["getConstructorName"]    = Reflection_getConstructorName;    // Reflection.getConstructorName(value):String
 // --- function ---
-Reflection["parseFunction"]         = Reflection_parseFunction;         // Reflection.parseFunction(target:Function):Object
-Reflection["buildFunction"]         = Reflection_buildFunction;         // Reflection.buildFunction(declaration:Object):String
+Reflection["getFunctionAttribute"]  = Reflection_getFunctionAttribute;  // Reflection.getFunctionAttribute(target:Function, name:String = "all"):Object
 // --- link ---
 Reflection["getSearchLink"]         = Reflection_getSearchLink;         // Reflection.getSearchLink(path:String):Object
 Reflection["getReferenceLink"]      = Reflection_getReferenceLink;      // Reflection.getReferenceLink(path:String):Object
@@ -199,29 +196,31 @@ function _findPropertyMember(target, root, className, keys) {
     return "";
 }
 
-function Reflection_parseFunction(target) { // @arg Function
-                                            // @ret Object - { name:String, head:StringArray, body:StringArray, arg:StringArray, ret:StringArray }
-    if (functionCache && functionCache.has(target)) {
-        return functionCache.get(target);
-    }
-    var result = _splitFunctionDeclaration(target + ""); // { head, body }
+function Reflection_getFunctionAttribute(target, // @arg Function
+                                         name) { // @arg String = "all"
+                                                 // @ret Object - { attrName: { name, type, optional, comment }, ... }
+    var result = {};
+    var sourceCode = target + "";
+    var head = _splitFunctionDeclaration(sourceCode)["head"]; // { head, body }
 
-    result["name"] = target["name"];
-    result["arg"]  = _getArg(result["head"]);
-    result["ret"]  = _getRet(result["head"]);
-
-    if (functionCache) {
-        functionCache.set(target, result);
+    switch (name || "all") {
+    case "all":
+        _getArg(head, result);
+        _getRet(head, result);
+        break;
+    case "arg":
+        _getArg(head, result);
+        break;
+    case "ret":
+        _getRet(head, result);
+        break;
     }
     return result;
 }
 
-function Reflection_buildFunction(declaration) { // @arg Object - { head, body, arg, ret }
-    return ""; // TODO impl
-}
-
-function _getArg(head) { // @arg StringArray - [line, ...]
-                         // @ret Object - [{ name, type, optional, comment }, ...]
+function _getArg(head,     // @arg StringArray - [line, ...]
+                 result) { // @arg Object
+                           // @ret Object - result + { "arg": [{ name, type, optional, comment }, ...] }
     // get @arg attribute.
     //
     //      function Foo_add(name,     // @arg Function|String = ""   comment
@@ -231,7 +230,8 @@ function _getArg(head) { // @arg StringArray - [line, ...]
     //                       name              type              opt  comment
     //      }
 
-    var result = [];
+    result["arg"] = [];
+
     var format = /^([\w\|\/,]+)\s*(=\s*("[^"]*"|'[^']*'|\S+))?\s*([^\n]*)$/;
 
     head.forEach(function(line, lineNumber) {
@@ -251,15 +251,16 @@ function _getArg(head) { // @arg StringArray - [line, ...]
                 optional = token[3] || "";
                 comment  =(token[4] || "").replace(/^[ :#\-]+/, "");
             }
-            result.push({ "name": name, "type": type,
-                          "optional": optional, "comment": comment });
+            result["arg"].push({ "name": name, "type": type,
+                                 "optional": optional, "comment": comment });
         }
     });
     return result;
 }
 
-function _getRet(head) { // @arg StringArray - [line, ...]
-                         // @ret Object - [{ types, comment }, ...]
+function _getRet(head,     // @arg StringArray - [line, ...]
+                 result) { // @arg Object
+                           // @ret Object - { "ret": { types, comment }, ... }
     // get @ret attribute.
     //
     //      function Foo_add(name,     // @arg Function|String = ""   comment
@@ -269,7 +270,8 @@ function _getRet(head) { // @arg StringArray - [line, ...]
     //                                         type                   comment
     //      }
 
-    var result = [];
+    result["ret"] = [];
+
     var format = /^([\w\|\/,]+)\s+([^\n]*)$/;
 
     head.forEach(function(line, lineNumber) {
@@ -284,9 +286,9 @@ function _getRet(head) { // @arg StringArray - [line, ...]
 
             if (token) {
                 type    = token[1];
-                comment =(token[2] || "").replace(/^[ :#\-]+/, "");
+                comment = token[2];
             }
-            result.push({ "type": type, "comment": comment });
+            result["ret"].push({ "type": type, "comment": comment });
         }
     });
     return result;
@@ -720,11 +722,7 @@ Valid["isRegistered"]   = Valid_isRegistered;   // Valid.isRegistered(type:HookT
 function Valid_args(api,    // @arg Function
                     args) { // @arg Array|ArrayLike
     if (global["Reflection"]) {
-        var func = global["Reflection"]["parseFunction"](api);
-
-        //global["Reflection"]["buildFunction"](func);
-
-        func["arg"].forEach(function(item, index) {
+        global["Reflection"]["getFunctionAttribute"](api, "arg")["arg"].forEach(function(item, index) {
             var type = item["type"];
 
             if (item["optional"]) {

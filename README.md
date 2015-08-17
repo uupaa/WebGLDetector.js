@@ -14,6 +14,7 @@ Detect WebGL
 <script src="<module-dir>/lib/WebGLDetector.js"></script>
 <script>
 
+WebGLDetector.detect();
 WebGLDetector.WEBGL_CONTEXT     // -> "wegbl"
 WebGLDetector.WEBGL_VERSION     // -> "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
 WebGLDetector.MAX_TEXTURE_SIZE  // -> 16384

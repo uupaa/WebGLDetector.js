@@ -35,6 +35,8 @@ if (IN_BROWSER || IN_NW) {
 
 // --- test cases ------------------------------------------
 function testWebGLDetector(test, pass, miss) {
+
+    WebGLDetector.detect();
     switch ( WebGLDetector.WEBGL_CONTEXT ) {
     case "webgl2":
     case "experimental-webgl2":
