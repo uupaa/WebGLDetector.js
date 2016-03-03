@@ -12,16 +12,17 @@ onmessage = function(event) {
         self.console.table = function() {};
     }
 
-    importScripts("../lib/WebModule.js");
+    importScripts("../../lib/WebModule.js");
 
-    // publish to global
+    WebModule.verify  = true;
+    WebModule.verbose = true;
     WebModule.publish = true;
 
     
-    importScripts("wmtools.js");
-    importScripts("../lib/WebGLDetector.js");
-    importScripts("../release/WebGLDetector.w.min.js");
-    importScripts("testcase.js");
+    
+    
+    
+    
 
     self.postMessage(self.unitTest);
 };
