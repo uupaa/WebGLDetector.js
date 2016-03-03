@@ -1,7 +1,7 @@
 {
   "name": "uupaa.webgldetector.js",
   "version": "0.0.5",
-  "description": "",
+  "description": "Detect WebGL",
   "url": "https://github.com/uupaa/WebGLDetector.js",
   "keywords": ["WebGL", "uupaa", "WebModule"],
   "repository": {
