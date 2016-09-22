@@ -1,1 +1,0 @@
-../test/wmtools.js
