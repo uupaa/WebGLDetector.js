@@ -45,6 +45,8 @@ function testWebGLDetector(test, pass, miss) {
     default:
         test.done(miss());
     }
+
+    document.body.innerHTML += JSON.stringify(WebGLDetector, null, 2).replace(/\n/g, "<br>");
 }
 
 return test.run();
